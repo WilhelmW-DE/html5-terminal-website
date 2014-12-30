@@ -288,7 +288,8 @@ var Terminal = Terminal || function(containerId) {
           }
           cmddone_();
           break;
-        case 'who': 
+        case 'who':      
+          output('HTML5 Terminal Website on <a href="https://github.com/WilhelmW-DE/html5-terminal-website">GitHub</a><br />');
           output('By: WilhelmW &lt;wilhelm@wilhelmw.de&gt;<br />');      
           output('V1.0.0 Terminal.js By: Eric Bidelman &lt;ericbidelman@chromium.org&gt;<br />');
           cmddone_();
