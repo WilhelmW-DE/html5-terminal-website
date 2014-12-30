@@ -30,6 +30,9 @@ body {
   color: white;
   background-color: black;
 }
+a { 
+  color: white;
+}
 .offscreen {
   background: -webkit-linear-gradient(top, #000, #333);
 }
