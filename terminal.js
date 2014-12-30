@@ -36,7 +36,7 @@ util.getDocHeight = function() {
 
 var Terminal = Terminal || function(containerId) {
   const VERSION_ = '2.0.0';
-  const ROOTURL_ = 'http://wilhelmw.de';
+  const ROOTURL_ = window.location.origin;
   const CMDS_ = ['cat', 'cd', 'clear', 'date', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget'];
   const FILES_ = {
         '/tmp' : {
