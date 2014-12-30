@@ -208,28 +208,31 @@ var Terminal = Terminal || function(containerId) {
 
       switch (cmd) {
         case 'cat':
-          var fileName = args.join(' ');
+          var filepath = args.join(' ');
 
-          if (!fileName) {
+          if (!filepath) {
             output('usage: ' + cmd + ' filename');  
             cmddone_();
             break;
           }
 
-          fileName = getPath(fileName);
+          filepath = getPath(filepath);
+          filename = filepath.split('/').pop();
           
-          var entries = getDir(fileName);
-          alert(typeof entries);
+          var entries = getDir(filepath);
           if(entries) {
-            getFile(fileName, function(result) {
-              output('<pre>' + result + '</pre>');
+            if(entries == filename) {
+              getFile(filepath, function(result) {
+                output('<pre>' + result + '</pre>');
+                cmddone_();
+              });
+              
+            } else {
+              output(cmd+': '+filepath+': Is a directory<br>');   
               cmddone_();
-            });
-          //} else if() {
-          //  output(cmd+': '+fileName+': Is a directory<br>');   
-          //  cmddone_();
+            }
           } else {
-            output(cmd+': '+fileName+': No such file or directory<br>');   
+            output(cmd+': '+filepath+': No such file or directory<br>');   
             cmddone_();
           }
           break;
@@ -289,7 +292,7 @@ var Terminal = Terminal || function(containerId) {
           cmddone_();
           break;
         case 'who':      
-          output('HTML5 Terminal Website on <a href="https://github.com/WilhelmW-DE/html5-terminal-website">GitHub</a><br />');
+          output('HTML5 Terminal Website on <a href="https://github.com/WilhelmW-DE/html5-terminal-website" target="_blank">GitHub</a><br />');
           output('By: WilhelmW &lt;wilhelm@wilhelmw.de&gt;<br />');      
           output('V1.0.0 Terminal.js By: Eric Bidelman &lt;ericbidelman@chromium.org&gt;<br />');
           cmddone_();
@@ -391,7 +394,8 @@ var Terminal = Terminal || function(containerId) {
         entries = entries['/'+dir];
       // file
       } else if(dir in entries) {
-        entries = {dir : ''};
+        entries = {};
+        entries[dir] = '';
       } else {
         entries = undefined;
         break;
