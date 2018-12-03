@@ -35,9 +35,10 @@ util.getDocHeight = function() {
 };
 
 var Terminal = Terminal || function(containerId) {
-  const VERSION_ = '2.0.0';
-  const ROOTURL_ = window.location.origin;
-  const CMDS_ = ['cat', 'cd', 'clear', 'date', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget'];
+  const VERSION_ = '2.1.0';
+  const ROOTURL_ = 'http://wilhelmw.de';
+  const GITHUB_ = 'https://github.com/WilhelmW-DE';
+  const CMDS_ = ['cat', 'cd', 'clear', 'date', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget', 'github'];
   const FILES_ = {
         '/tmp' : {
           'gesetzgebung.pl.txt' : ''
@@ -58,9 +59,14 @@ var Terminal = Terminal || function(containerId) {
 
   var fs_ = null;
   var cwd_ = '/';
+  
   var history_ = [];
   var histpos_ = 0;
   var histtemp_ = 0;
+  
+  var tabcount_ = 0;
+  var tab_ = [];
+  var tabtemp_ = '';
 
   var timer_ = null;
 
@@ -133,7 +139,7 @@ var Terminal = Terminal || function(containerId) {
   function selectFile_(el) {
     //alert(el)
   }
-
+  
   function historyHandler_(e) { // Tab needs to be keydown.
 
     if (history_.length) {
@@ -174,8 +180,43 @@ var Terminal = Terminal || function(containerId) {
 
     if (e.keyCode == 9) { // Tab
       e.preventDefault();
+	  
+	  var cmd = this.value;
+	  var patt = new RegExp("^" + cmd + ".*", 'i');
+	  
+	  if(tabcount_ == 0) {
+		  tab_ = [];
+		  CMDS_.forEach( function(comand) {  
+			if(patt.test(comand)) {
+				tab_[tab_.length] = comand;
+			}
+		  });
+	  }
+	  
+	  if(tab_.length == 1) {
+		  cmdLine_.value = tab_[0];
+	  }
+	  
+	  if(tabcount_ == 1) {
+		  
+		  // Duplicate current input and append to output section.
+		  newprompt_();
+		  
+		  // hide prompt until cmd is done
+		  inputline_.classList.add('hidden');
+		  
+          output('<div class="ls-files">' + tab_.join('<br />') + '</div>');
+		  
+          cmddone_();
+	  }
+	  
+	  tabcount_++;
       // TODO(ericbidelman): Implement tab suggest.
-    } else if (e.keyCode == 13) { // enter
+	} else {
+	  tabcount_ = 0;
+	}
+	
+	if (e.keyCode == 13) { // enter
 
       // Save shell history.
       if (this.value) {
@@ -184,14 +225,7 @@ var Terminal = Terminal || function(containerId) {
       }
 
       // Duplicate current input and append to output section.
-      var line = this.parentNode.parentNode.cloneNode(true);
-      line.removeAttribute('id');
-      line.classList.add('line');
-      line.querySelector('input.cmdline').parentNode.removeChild(line.querySelector('span.cursor'));
-      var input = line.querySelector('input.cmdline');
-      input.autofocus = false;
-      input.readOnly = true;
-      output_.appendChild(line);
+      newprompt_();
       
       // hide prompt until cmd is done
       inputline_.classList.add('hidden');
@@ -281,22 +315,32 @@ var Terminal = Terminal || function(containerId) {
           cmddone_();
           break;
         case 'wget':
-          var url = getPath(args[0]);
-          
-          var entries = getDir(url);
-          if(entries) {
-            window.open(ROOTURL_ + url, 'Download');
-          } else {
-            output(cmd+': '+url+': No such file or directory<br>');
-          }
-          cmddone_();
-          break;
+			if(!args[0]) {
+				output('wget: URL missing<br />');
+				output('Syntax: wget [URL]...');
+				cmddone_();
+				break;
+			}
+			var url = getPath(args[0]);
+
+			var entries = getDir(url);
+			if(entries) {
+			window.open(ROOTURL_ + url, 'Download');
+			} else {
+			output(cmd+': '+url+': No such file or directory<br />');
+			}
+			cmddone_();
+			break;
         case 'who':      
           output('HTML5 Terminal Website on <a href="https://github.com/WilhelmW-DE/html5-terminal-website" target="_blank">GitHub</a><br />');
           output('By: WilhelmW &lt;wilhelm@wilhelmw.de&gt;<br />');      
           output('V1.0.0 Terminal.js By: Eric Bidelman &lt;ericbidelman@chromium.org&gt;<br />');
           cmddone_();
           break;
+		case 'github':
+		  output('<a href="' + GITHUB_ + '">' + GITHUB_ + '</a>');
+		  cmddone_();
+		  break;
         default:
           if (cmd) {
             output(cmd + ': command not found');
@@ -312,6 +356,18 @@ var Terminal = Terminal || function(containerId) {
     inputline_.classList.remove('hidden'); // show prompt again       
     cmdLine_.focus();
   }
+  
+	function newprompt_() {
+		// Duplicate current input and append to output section.
+		var line = cmdLine_.parentNode.parentNode.cloneNode(true);
+		line.removeAttribute('id');
+		line.classList.add('line');
+		line.querySelector('input.cmdline').parentNode.removeChild(line.querySelector('span.cursor'));
+		var input = line.querySelector('input.cmdline');
+		input.autofocus = false;
+		input.readOnly = true;
+		output_.appendChild(line);
+	}
 
   function formatColumns_(entries) {
     var maxName = entries[0];
