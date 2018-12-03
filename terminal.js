@@ -35,7 +35,7 @@ util.getDocHeight = function() {
 };
 
 var Terminal = Terminal || function(containerId) {
-  const VERSION_ = '2.1.1';
+  const VERSION_ = '2.1.2';
   const ROOTURL_ = 'http://wilhelmw.de';
   const GITHUB_ = 'https://github.com/WilhelmW-DE';
   const CMDS_ = ['cat', 'cd', 'clear', 'date', 'github', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget'];
@@ -181,12 +181,12 @@ var Terminal = Terminal || function(containerId) {
     if (e.keyCode == 9) { // Tab
       e.preventDefault();
 	  
-	  var cmd = this.value;
-	  var patt = new RegExp("^" + cmd + ".*", 'i');
+	  var cmd = this.value.split(' ');
+	  var patt = new RegExp("^" + cmd[cmd.length - 1] + ".*", 'i');
 	  
 	  if(tabcount_ == 0) {
 		  tab_ = [];
-		  CMDS_.forEach( function(comand) {  
+		  CMDS_.concat(getDir(cwd_)).forEach( function(comand) {  
 			if(patt.test(comand)) {
 				tab_[tab_.length] = comand;
 			}
@@ -194,10 +194,15 @@ var Terminal = Terminal || function(containerId) {
 	  }
 	  
 	  if(tab_.length == 1) {
-		  cmdLine_.value = tab_[0];
+		  cmd.pop()
+		  if(cmd.length == 0) {
+			cmdLine_.value = tab_[0];
+		  } else {
+			cmdLine_.value = cmd.join(' ') + ' ' + tab_[0];
+		  }
 	  }
 	  
-	  if(tab_.length > 0 && tabcount_ == 1) {
+	  if(tab_.length > 1 && tabcount_ == 1) {
 		  
 		  // Duplicate current input and append to output section.
 		  newprompt_();
@@ -352,11 +357,14 @@ var Terminal = Terminal || function(containerId) {
     }
   }
   
-  function cmddone_() {
-    inputline_.classList.remove('hidden'); // show prompt again       
-    cmdLine_.focus();
-  }
+	/////////////////////////////////////////////////////////////////////////////
+	function cmddone_() {
+		inputline_.classList.remove('hidden'); // show prompt again       
+		cmdLine_.focus();
+		cmdLine_.scrollIntoView();
+	}
   
+	/////////////////////////////////////////////////////////////////////////////
 	function newprompt_() {
 		// Duplicate current input and append to output section.
 		var line = cmdLine_.parentNode.parentNode.cloneNode(true);
@@ -369,6 +377,7 @@ var Terminal = Terminal || function(containerId) {
 		output_.appendChild(line);
 	}
 
+  /////////////////////////////////////////////////////////////////////////////
   function formatColumns_(entries) {
     var maxName = entries[0];
     entries.forEach(function(entry, i) {
@@ -389,6 +398,7 @@ var Terminal = Terminal || function(containerId) {
     return ['<div class="ls-files" style="-webkit-column-width:', colWidth, 'px;', height, '">'];
   }
   
+  /////////////////////////////////////////////////////////////////////////////
   function cd_(dest) {
     var dir = getPath(dest);
     var entries = getDir(dir);
@@ -396,10 +406,11 @@ var Terminal = Terminal || function(containerId) {
       cwd_ = dir;
       refreshPrompt();
     } else {
-      output('cd: '+dest+': No such file or directory<br>');
+      output('cd: '+dest+': No such file or directory<br />');
     }
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   function ls_(args) {
     var entries = getDir(cwd_);
     
@@ -417,6 +428,7 @@ var Terminal = Terminal || function(containerId) {
     }
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   function clear_(input) {
     output_.innerHTML = '';
     input.value = '';
@@ -424,11 +436,13 @@ var Terminal = Terminal || function(containerId) {
     interlace_.style.height = '100%';
   }
 
+  /////////////////////////////////////////////////////////////////////////////
   function output(html) {
     output_.insertAdjacentHTML('beforeEnd', html);
     cmdLine_.scrollIntoView();
   }
     
+  /////////////////////////////////////////////////////////////////////////////
   function refreshPrompt() {
     prompt_.innerHTML = 'guest@'+document.title+':'+cwd_+'# ';
   }
