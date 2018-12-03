@@ -35,10 +35,10 @@ util.getDocHeight = function() {
 };
 
 var Terminal = Terminal || function(containerId) {
-  const VERSION_ = '2.1.0';
+  const VERSION_ = '2.1.1';
   const ROOTURL_ = 'http://wilhelmw.de';
   const GITHUB_ = 'https://github.com/WilhelmW-DE';
-  const CMDS_ = ['cat', 'cd', 'clear', 'date', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget', 'github'];
+  const CMDS_ = ['cat', 'cd', 'clear', 'date', 'github', 'help', 'history', 'ls', 'pwd', 'version', 'who', 'wget'];
   const FILES_ = {
         '/tmp' : {
           'gesetzgebung.pl.txt' : ''
@@ -197,7 +197,7 @@ var Terminal = Terminal || function(containerId) {
 		  cmdLine_.value = tab_[0];
 	  }
 	  
-	  if(tabcount_ == 1) {
+	  if(tab_.length > 0 && tabcount_ == 1) {
 		  
 		  // Duplicate current input and append to output section.
 		  newprompt_();
@@ -207,11 +207,11 @@ var Terminal = Terminal || function(containerId) {
 		  
           output('<div class="ls-files">' + tab_.join('<br />') + '</div>');
 		  
+		  tabcount_ = 0;
           cmddone_();
+	  } else {
+		tabcount_++;
 	  }
-	  
-	  tabcount_++;
-      // TODO(ericbidelman): Implement tab suggest.
 	} else {
 	  tabcount_ = 0;
 	}

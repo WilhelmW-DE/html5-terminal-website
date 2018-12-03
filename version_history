@@ -1,0 +1,25 @@
+###############################################################################
+#
+# (c) 2014 - WilhelmW
+#
+###############################################################################
+#
+# Website Shell
+#       
+###############################################################################
+# 
+# Log:
+# 20181203 2.1.1 WilhelmW
+# - added tab suggestion
+#
+# 20181202 2.0.1 WilhelmW
+# - added "Github" comand
+# - Bugfix: wget help text when executed without arguments
+#
+# 20141228 2.0.0 WilhelmW
+# - inital version
+#
+# 20110101 1.0.0 Eric Bidelman
+# - Terminal from Eric Bidelman (ericbidelman@chromium.org)
+# 
+###############################################################################
